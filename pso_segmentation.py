@@ -45,8 +45,12 @@ def pso_threshold(img, gt_mask):
     _, best_pos = optimizer.optimize(objective, iters=40, verbose=False)
     threshold = float(best_pos[0])
     
-    # Fallback for edge cases
+    # Fallback for edge cases where PSO converges to boundary
     if threshold <= 0.01 or threshold >= 0.99:
-        threshold = 0.5
+        # Use Otsu's method as fallback
+        import cv2
+        img_uint8 = (img * 255).astype(np.uint8)
+        _, threshold_otsu = cv2.threshold(img_uint8, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        threshold = threshold_otsu / 255.0
     
     return threshold
