@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Basic PSO implementation for image segmentation threshold optimization.
+PSO implementation for image segmentation threshold optimization.
 """
 
 import numpy as np
 import pyswarms as ps
+from metrics import dice_coefficient
 
 
 def pso_threshold(img, gt_mask):
@@ -28,14 +29,9 @@ def pso_threshold(img, gt_mask):
         scores = []
         for t in th_vec:
             pred = (img > t[0]).astype(np.uint8)
-            dice = dice_coef(gt_mask, pred)
+            dice = dice_coefficient(gt_mask, pred)
             scores.append(-dice)
         return np.array(scores)
-    
-    # Simple Dice coefficient calculation
-    def dice_coef(g, p):
-        inter = np.sum(g & p)
-        return 2 * inter / (g.sum() + p.sum() + 1e-8)
     
     # PSO optimization
     options = {'c1': 1.5, 'c2': 1.5, 'w': 0.5}
@@ -48,5 +44,9 @@ def pso_threshold(img, gt_mask):
     
     _, best_pos = optimizer.optimize(objective, iters=40, verbose=False)
     threshold = float(best_pos[0])
+    
+    # Fallback for edge cases
+    if threshold <= 0.01 or threshold >= 0.99:
+        threshold = 0.5
     
     return threshold
