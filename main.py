@@ -4,13 +4,13 @@ Main pipeline for PSO-based brain tumor segmentation.
 """
 
 import os
-import glob
 import random
 import numpy as np
 from tqdm import tqdm
 from preprocessing import load_image, load_mask
 from pso_segmentation import pso_threshold
 from metrics import compute_all_metrics
+from utils import find_image_files, get_mask_path
 from visualization import (
     save_triplet_comparison,
     plot_dice_histogram,
@@ -62,12 +62,7 @@ def main(k_triplets=6, triplet_prob=0.03):
     random.seed(0)
     
     # Find all images
-    image_extensions = ["jpg", "jpeg", "png", "JPG", "PNG"]
-    image_paths = []
-    for ext in image_extensions:
-        image_paths.extend(glob.glob(os.path.join(IMAGE_DIR, f"*.{ext}")))
-    
-    image_paths = sorted(image_paths)
+    image_paths = find_image_files(IMAGE_DIR)
     print(f"Found {len(image_paths)} images")
     
     # Process images
@@ -78,8 +73,8 @@ def main(k_triplets=6, triplet_prob=0.03):
     saved_triplets = 0
     
     for img_path in tqdm(image_paths, desc="Processing"):
+        mask_path = get_mask_path(img_path, MASK_DIR)
         base_name = os.path.splitext(os.path.basename(img_path))[0]
-        mask_path = os.path.join(MASK_DIR, f"{base_name}_mask.jpg")
         
         if not os.path.exists(mask_path):
             print(f"Warning: Mask not found for {base_name}")
