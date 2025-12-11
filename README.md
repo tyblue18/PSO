@@ -67,6 +67,22 @@ The segmentation pipeline:
 3. Evaluates performance using multiple metrics
 4. Generates visualizations and qualitative examples
 
+## Methodology
+
+The segmentation pipeline:
+1. Preprocesses images with Gaussian blur and histogram equalization
+2. Uses PSO to optimize threshold for each tumor-containing slice
+3. Falls back to Otsu's method if PSO converges to boundary values
+4. Evaluates performance using multiple metrics
+5. Generates visualizations and qualitative examples
+
+## Results
+
+The system processes medical images and generates:
+- Quantitative metrics (Dice, IoU, Precision, Recall)
+- Distribution plots and statistical analysis
+- Qualitative visualizations comparing input, ground truth, and predictions
+
 ## License
 
 MIT License
